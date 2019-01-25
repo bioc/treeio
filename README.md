@@ -4,8 +4,8 @@
 
 <img src="https://raw.githubusercontent.com/Bioconductor/BiocStickers/master/treeio/treeio.png" height="200" align="right" />
 
-[![releaseVersion](https://img.shields.io/badge/release%20version-1.4.3-green.svg?style=flat)](https://bioconductor.org/packages/treeio)
-[![develVersion](https://img.shields.io/badge/devel%20version-1.5.5-green.svg?style=flat)](https://github.com/guangchuangyu/treeio)
+[![](https://img.shields.io/badge/release%20version-1.6.1-green.svg)](https://www.bioconductor.org/packages/treeio)
+[![](https://img.shields.io/badge/devel%20version-1.7.3-green.svg)](https://github.com/guangchuangyu/treeio)
 [![Bioc](http://www.bioconductor.org/shields/years-in-bioc/treeio.svg)](https://www.bioconductor.org/packages/devel/bioc/html/treeio.html#since)
 [![](https://badges.ropensci.org/179_status.svg)](https://github.com/ropensci/onboarding/issues/179)
 
@@ -13,7 +13,7 @@
 state and is being actively
 developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![codecov](https://codecov.io/gh/GuangchuangYu/treeio/branch/master/graph/badge.svg)](https://codecov.io/gh/GuangchuangYu/treeio)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2018--09--30-green.svg)](https://github.com/GuangchuangYu/treeio/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2019--01--26-green.svg)](https://github.com/GuangchuangYu/treeio/commits/master)
 [![GitHub
 forks](https://img.shields.io/github/forks/GuangchuangYu/treeio.svg)](https://github.com/GuangchuangYu/treeio/network)
 [![GitHub
@@ -47,8 +47,8 @@ for more details.
 
 [![Twitter](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/intent/tweet?hashtags=treeio&url=http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12628/abstract&screen_name=guangchuangyu)
 [![saythanks](https://img.shields.io/badge/say-thanks-ff69b4.svg)](https://saythanks.io/to/GuangchuangYu)
-[![](https://img.shields.io/badge/follow%20me%20on-微信-green.svg?style=flat)](https://guangchuangyu.github.io/blog_images/biobabble.jpg)
-[![](https://img.shields.io/badge/打赏-支付宝/微信-green.svg?style=flat)](https://guangchuangyu.github.io/blog_images/pay_qrcode.png)
+[![](https://img.shields.io/badge/follow%20me%20on-微信-green.svg)](https://guangchuangyu.github.io/blog_images/biobabble.jpg)
+[![](https://img.shields.io/badge/打赏-支付宝/微信-green.svg)](https://guangchuangyu.github.io/blog_images/pay_qrcode.png)
 
 ## Authors
 
@@ -78,8 +78,8 @@ devtools::install_github("GuangchuangYu/treeio")
 ## Download stats
 
 [![download](http://www.bioconductor.org/shields/downloads/treeio.svg)](https://bioconductor.org/packages/stats/bioc/treeio)
-[![total](https://img.shields.io/badge/downloads-15360/total-blue.svg?style=flat)](https://bioconductor.org/packages/stats/bioc/treeio)
-[![month](https://img.shields.io/badge/downloads-1397/month-blue.svg?style=flat)](https://bioconductor.org/packages/stats/bioc/treeio)
+[![](https://img.shields.io/badge/download-20950/total-blue.svg)](https://bioconductor.org/packages/stats/bioc/treeio)
+[![](https://img.shields.io/badge/download-1435/month-blue.svg)](https://bioconductor.org/packages/stats/bioc/treeio)
 
 <img src="https://guangchuangyu.github.io/software/treeio/index_files/figure-html/unnamed-chunk-2-1.png" width="890"/>
 
