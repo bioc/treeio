@@ -23,6 +23,7 @@
 \alias{child}
 \alias{offspring}
 \alias{rootnode}
+\alias{MRCA}
 \alias{full_join}
 \alias{data_frame}
 \title{Objects exported from other packages}
@@ -40,6 +41,6 @@ below to see their documentation.
 
   \item{tibble}{\code{\link[tibble]{data_frame}}}
 
-  \item{tidytree}{\code{\link[tidytree]{treedata}}, \code{\link[tidytree]{get.fields}}, \code{\link[tidytree]{get.data}}, \code{\link[tidytree]{as.treedata}}, \code{\link[tidytree]{ancestor}}, \code{\link[tidytree]{parent}}, \code{\link[tidytree]{child}}, \code{\link[tidytree]{offspring}}, \code{\link[tidytree]{rootnode}}}
+  \item{tidytree}{\code{\link[tidytree]{treedata}}, \code{\link[tidytree]{get.fields}}, \code{\link[tidytree]{get.data}}, \code{\link[tidytree]{as.treedata}}, \code{\link[tidytree]{ancestor}}, \code{\link[tidytree]{parent}}, \code{\link[tidytree]{child}}, \code{\link[tidytree]{offspring}}, \code{\link[tidytree]{rootnode}}, \code{\link[tidytree]{MRCA}}}
 }}
 

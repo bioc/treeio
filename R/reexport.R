@@ -34,6 +34,10 @@ tidytree::offspring
 ##' @export
 tidytree::rootnode
 
+##' @importFrom tidytree MRCA
+##' @export
+tidytree::MRCA
+
 ##' @importFrom dplyr full_join
 ##' @export
 dplyr::full_join
