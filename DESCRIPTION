@@ -1,6 +1,6 @@
 Package: treeio
 Title: Base Classes and Functions for Phylogenetic Tree Input and Output
-Version: 1.14.3
+Version: 1.14.4
 Authors@R: c(
     person("Guangchuang", "Yu",     email = "guangchuangyu@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6485-8781")),
     person("Tommy Tsan-Yuk", "Lam", email = "tylam.tommy@gmail.com",   role = c("ctb", "ths")),
@@ -29,12 +29,14 @@ Suggests:
     ggtree,
     igraph,
     knitr,
+    rmarkdown,
     phangorn,
     prettydoc,
     testthat,
     tidyr,
     vroom,
-    xml2
+    xml2,
+    yaml
 VignetteBuilder: knitr
 ByteCompile: true
 License: Artistic-2.0
