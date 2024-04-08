@@ -121,7 +121,7 @@ as.phylo.matrix <- as.phylo.tbl_df
 ##' @method as.phylo pvclust
 ##' @export
 as.phylo.pvclust <- function(x, ...) {
-    as.phylo.hclust_node(x$hclust, ...)
+    as.phylo_hclust_node(x$hclust, ...)
 }
 
 ##' @method as.phylo ggtree

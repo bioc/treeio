@@ -9,8 +9,9 @@
 -->
 
 
-# treeio 1.27.0.002
+# treeio 1.27.1
 
++ added support for multiple trees / writing phylo objects in `write.beast()` (2024-04-08, Mon, #113)
 + speed up `read.beast()` (2023-12-13, Wed, #118)
 + optimize `write.jtree()` (2023-12-13, Wed, #117)
 + `write.jplace()` method to export `jplace` object to a jplace file (2023-11-27, Mon, #112, #115)

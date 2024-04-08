@@ -333,14 +333,17 @@ read.stats_beast_internal <- function(beast, text) {
 
     colnames(stats3) <- cn
     stats3$node <- names(stats)
+    
+    if (length(cn) > 0) {
+        i <- vapply(stats3,
+                    function(x) max(vapply(x, length, numeric(1))),
+                    numeric(1))
 
-    i <- vapply(stats3,
-                function(x) max(vapply(x, length, numeric(1))),
-                numeric(1))
-
-    for (j in which(i==1)) {
-        stats3[,j] <- unlist(stats3[,j])
+        for (j in which(i==1)) {
+            stats3[,j] <- unlist(stats3[,j])
+        }
     }
+
     stats3$node <- as.integer(stats3$node)
     return(stats3)
 }

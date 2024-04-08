@@ -121,7 +121,7 @@ as.treedata.matrix <- as.treedata.tbl_df
 ##' @export
 ## contributed by Konstantinos Geles and modified by Guangchuang Yu
 as.treedata.pvclust <- function(tree, ...) {
-    phylo <- as.phylo.hclust_node(tree$hclust, ...)
+    phylo <- as.phylo_hclust_node(tree$hclust, ...)
 
     ## tranforming the pvclust bootstraps values to tibble with key column:"label"
     tree_boots <- (round(tree$edges[, c("si","au", "bp")],2)*100) %>% 
@@ -132,7 +132,7 @@ as.treedata.pvclust <- function(tree, ...) {
 }
 
 
-as.phylo.hclust_node <- function(x, hang = NULL){
+as.phylo_hclust_node <- function(x, hang = NULL){
     N <- dim(x$merge)[1]
     edge <- matrix(0L, 2 * N, 2)
     edge.length <- numeric(2 * N)
@@ -180,7 +180,7 @@ as.phylo.hclust_node <- function(x, hang = NULL){
 
 
 ## reference: https://stackoverflow.com/questions/22749634/how-to-append-bootstrapped-values-of-clusters-tree-nodes-in-newick-format-in
-as.phylo.hclust2 <- function(x, hang = NULL){
+as.phylo_hclust2 <- function(x, hang = NULL){
     h <- x
     tr <- ape::as.phylo(x)
     ev <- edge2vec(tr)

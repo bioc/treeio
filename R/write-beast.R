@@ -32,7 +32,7 @@ write.beast <- function(treedata, file = "",
           names(treedata)
       }
 
-      treedatalist <- ifelse(class(treedata) == "treedata", list(treedata), list(as.treedata(treedata)))
+      treedatalist <- ifelse(inherits(treedata, "treedata"), list(treedata), list(as.treedata(treedata)))
 
       obj <- list(as.phylo(treedata))
     } else { # list of trees
@@ -44,7 +44,7 @@ write.beast <- function(treedata, file = "",
       }
 
       treedatalist <- lapply(treedata, function(x) {
-        if (class(x) == "treedata") {
+        if (inherits(x, "treedata")) {
           x
         } else {
           as.treedata(x)
