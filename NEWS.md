@@ -1,6 +1,4 @@
-# treeio 1.28.0
 
-+ Bioconductor RELEASE_3_19 (2024-05-15, Wed)
 
 <!--
 
@@ -12,6 +10,14 @@
 
 -->
 
+# treeio 1.29.0.001
+
++ support timetree output (2024-07-18, Thu)
+  - <https://treetime.readthedocs.io/en/latest/tutorials/clock.html>
+  
+# treeio 1.28.0
+
++ Bioconductor RELEASE_3_19 (2024-05-15, Wed)
 
 # treeio 1.27.1
 

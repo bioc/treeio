@@ -1,6 +1,6 @@
 Package: treeio
 Title: Base Classes and Functions for Phylogenetic Tree Input and Output
-Version: 1.29.0
+Version: 1.29.0.001
 Authors@R: c(
     person("Guangchuang", "Yu",     email = "guangchuangyu@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6485-8781")),
     person("Tommy Tsan-Yuk", "Lam", email = "tylam.tommy@gmail.com",   role = c("ctb", "ths")),
@@ -49,4 +49,4 @@ URL: https://github.com/YuLab-SMU/treeio (devel), https://docs.ropensci.org/tree
 BugReports: https://github.com/YuLab-SMU/treeio/issues
 biocViews: Software, Annotation, Clustering, DataImport, DataRepresentation,
     Alignment, MultipleSequenceAlignment, Phylogenetics
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
