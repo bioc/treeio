@@ -12,7 +12,7 @@
 
 # treeio 1.29.0.001
 
-+ support timetree output (2024-07-18, Thu)
++ support treetime output (2024-07-18, Thu)
   - <https://treetime.readthedocs.io/en/latest/tutorials/clock.html>
   
 # treeio 1.28.0

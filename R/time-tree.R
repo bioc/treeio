@@ -1,10 +1,11 @@
 ##' read timetree output
 ##'
+##' @rdname treetime
 ##' @title read.timetree
 ##' @param file the output tree file of timetree
 ##' @return treedata object
 ##' @export
-read.timetree <- function(file) {
+read.treetime <- function(file) {
     con <- readLines(file)
     con <- sub("(\\[)\\\\\\[(.*)\\\\\\](\\])", "\\1\\2\\3", con) 
 
@@ -14,3 +15,7 @@ read.timetree <- function(file) {
     x@file <- file
     return(x)
 }
+
+##' @rdname treetime
+read.timetree <- read.treetime
+
