@@ -17,5 +17,8 @@ read.treetime <- function(file) {
 }
 
 ##' @rdname treetime
-read.timetree <- read.treetime
+read.timetree <- function(file) {
+    message("Please use `read.treetime() instead. The `read.timetree()` function may be removed in future version.\n")
+    read.treetime(file)
+}
 
