@@ -10,8 +10,9 @@
 
 -->
 
-# treeio 1.29.0.001
+# treeio 1.29.0.002
 
++ use `yulab.utils::yulab_msg()` for startup message (2024-07-26, Fri)
 + support treetime output (2024-07-18, Thu)
   - <https://treetime.readthedocs.io/en/latest/tutorials/clock.html>
   
