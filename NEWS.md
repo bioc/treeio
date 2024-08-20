@@ -12,7 +12,6 @@
 
 # treeio 1.29.1
 
-+ use `yulab.utils::bib_ggtree()` for CITATION (2024-08-17, Sat)
 + use `yulab.utils::yulab_msg()` for startup message (2024-07-26, Fri)
 + support treetime output (2024-07-18, Thu)
   - <https://treetime.readthedocs.io/en/latest/tutorials/clock.html>
