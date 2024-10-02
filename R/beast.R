@@ -360,7 +360,7 @@ read.stats_beast_internal <- function(beast, text, index = NULL, verbose = FALSE
 
     stats3$node <- as.integer(stats3$node)
 
-    if (verbose) {
+    if (verbose && (index %% 100 == 0)) {
         cat("Completed (", index," / ",  ntrees, ") trees\r", sep = "")
     }
 
