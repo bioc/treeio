@@ -11,11 +11,11 @@
 ##' @examples
 ##' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
 ##' read.beast(file)
-read.beast <- function(file) {
+read.beast <- function(file, threads = getOption('mc.cores')) {
     text <- readLines(file)
 
     treetext <- read.treetext_beast(text)
-    stats <- read.stats_beast(text, treetext)
+    stats <- read.stats_beast(text, treetext, threads = threads)
     phylo <- read.nexus(file)
 
     if (length(treetext) == 1) {
@@ -139,11 +139,12 @@ read.trans_beast <- function(beast) {
 }
 
 
-read.stats_beast <- function(beast, trees) {
+##' @importFrom parallel mclapply
+read.stats_beast <- function(beast, trees, threads = getOption('mc.cores')) {
     if (length(trees) == 1) {
         return(read.stats_beast_internal(beast, trees))
     }
-    lapply(trees, read.stats_beast_internal, beast=beast)
+    mclapply(trees, read.stats_beast_internal, beast=beast, mc.cores = threads)
 }
 
 
@@ -333,7 +334,7 @@ read.stats_beast_internal <- function(beast, text) {
 
     colnames(stats3) <- cn
     stats3$node <- names(stats)
-    
+
     if (length(cn) > 0) {
         i <- vapply(stats3,
                     function(x) max(vapply(x, length, numeric(1))),

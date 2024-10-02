@@ -7,13 +7,13 @@
 \alias{read.mega}
 \title{read.beast}
 \usage{
-read.beast(file)
+read.beast(file, threads = getOption("mc.cores"))
 
-read.mrbayes(file)
+read.mrbayes(file, threads = getOption("mc.cores"))
 
 read.beast.newick(file)
 
-read.mega(file)
+read.mega(file, threads = getOption("mc.cores"))
 }
 \arguments{
 \item{file}{newick file}
