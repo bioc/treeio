@@ -145,7 +145,7 @@ read.stats_beast <- function(beast, trees, threads = getOption('mc.cores')) {
         return(read.stats_beast_internal(beast, trees))
     }
     if (threads == 1) {
-        lapply(trees, read.stats_beast_internal, beast=beast, mc.cores = threads)
+        lapply(trees, read.stats_beast_internal, beast=beast)
     } else {
         mclapply(trees, read.stats_beast_internal, beast=beast, mc.cores = threads)
     }
