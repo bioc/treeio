@@ -11,11 +11,11 @@
 ##' @examples
 ##' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
 ##' read.beast(file)
-read.beast <- function(file, threads = 1) {
+read.beast <- function(file, ...) {
     text <- readLines(file)
 
     treetext <- read.treetext_beast(text)
-    stats <- read.stats_beast(text, treetext, threads = threads)
+    stats <- read.stats_beast(text, treetext, ...)
     phylo <- read.nexus(file)
 
     if (length(treetext) == 1) {
@@ -140,24 +140,33 @@ read.trans_beast <- function(beast) {
 
 
 ##' @importFrom parallel mclapply
-read.stats_beast <- function(beast, trees, threads = getOption('mc.cores')) {
+read.stats_beast <- function(beast, trees, threads = 1, verbose = FALSE) {
     if (length(trees) == 1) {
         return(read.stats_beast_internal(beast, trees))
     }
     if (threads == 1) {
-        lapply(trees, read.stats_beast_internal, beast=beast)
+        myapply <- lapply
     } else {
-        mclapply(trees, read.stats_beast_internal, beast=beast, mc.cores = threads)
+        myapply <- function(...) mclapply(..., mc.cores = threads)
     }
+
+    res <- myapply(seq_along(trees), read.stats_beast_internal, beast=beast, text=trees, verbose=verbose, ntrees=length(trees))
+    if (verbose) {
+        cat("\n")
+    }
+    return(res)
 }
 
 
 
-read.stats_beast_internal <- function(beast, text) {
+read.stats_beast_internal <- function(beast, text, index = NULL, verbose = FALSE, ntrees = NULL) {
     ##tree <- gsub(" ", "", tree)
     ## tree2 <- gsub("\\[[^\\[]*\\]", "", tree)
     ## phylo <- read.tree(text = tree2)
     ## tree2 <- add_pseudo_nodelabel(phylo, tree2)
+    if (!is.null(index)) {
+        text = text[[index]]
+    }
 
     is_translated <- any(grepl("TRANSLATE", beast, ignore.case = TRUE, perl = use_perl()))
 
@@ -350,6 +359,11 @@ read.stats_beast_internal <- function(beast, text) {
     }
 
     stats3$node <- as.integer(stats3$node)
+
+    if (verbose) {
+        cat("Completed (", index," / ",  ntrees, ") trees\r", sep = "")
+    }
+
     return(stats3)
 }
 
