@@ -11,7 +11,7 @@
 ##' @examples
 ##' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
 ##' read.beast(file)
-read.beast <- function(file, threads = getOption('mc.cores')) {
+read.beast <- function(file, threads = 1) {
     text <- readLines(file)
 
     treetext <- read.treetext_beast(text)
@@ -144,7 +144,11 @@ read.stats_beast <- function(beast, trees, threads = getOption('mc.cores')) {
     if (length(trees) == 1) {
         return(read.stats_beast_internal(beast, trees))
     }
-    mclapply(trees, read.stats_beast_internal, beast=beast, mc.cores = threads)
+    if (rthreads == 1) {
+        lapply(trees, read.stats_beast_internal, beast=beast, mc.cores = threads)
+    } else {
+        mclapply(trees, read.stats_beast_internal, beast=beast, mc.cores = threads)
+    }
 }
 
 
