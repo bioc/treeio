@@ -59,10 +59,12 @@ read.beast.newick <- function(file) {
     treetext <- text
     phylo <- read.tree(textConnection(treetext))
 
+    is_translated <- any(grepl("TRANSLATE", text, ignore.case = TRUE, perl = use_perl()))
+
     stats <- if (length(treetext) == 1){
-        read.stats_beast_internal(text, treetext)
+        read.stats_beast_internal(treetext, is_translated)
     } else {
-        lapply(treetext, read.stats_beast_internal, beast=text)
+        lapply(treetext, read.stats_beast_internal, is_translated=is_translated)
     }
 
     if (length(treetext) == 1) {
@@ -141,8 +143,10 @@ read.trans_beast <- function(beast) {
 
 ##' @importFrom parallel mclapply
 read.stats_beast <- function(beast, trees, threads = 1, verbose = FALSE) {
+    is_translated <- any(grepl("TRANSLATE", beast, ignore.case = TRUE, perl = use_perl()))
+
     if (length(trees) == 1) {
-        return(read.stats_beast_internal(beast, trees))
+        return(read.stats_beast_internal(trees, is_translated))
     }
     if (threads == 1) {
         myapply <- lapply
@@ -150,7 +154,7 @@ read.stats_beast <- function(beast, trees, threads = 1, verbose = FALSE) {
         myapply <- function(...) mclapply(..., mc.cores = threads)
     }
 
-    res <- myapply(seq_along(trees), read.stats_beast_internal, beast=beast, text=trees, verbose=verbose, ntrees=length(trees))
+    res <- myapply(seq_along(trees), read.stats_beast_internal, text=trees, is_translated = is_translated, verbose=verbose, ntrees=length(trees))
     if (verbose) {
         cat("\n")
     }
@@ -159,7 +163,7 @@ read.stats_beast <- function(beast, trees, threads = 1, verbose = FALSE) {
 
 
 
-read.stats_beast_internal <- function(beast, text, index = NULL, verbose = FALSE, ntrees = NULL) {
+read.stats_beast_internal <- function(text, is_translated, index = NULL, verbose = FALSE, ntrees = NULL) {
     ##tree <- gsub(" ", "", tree)
     ## tree2 <- gsub("\\[[^\\[]*\\]", "", tree)
     ## phylo <- read.tree(text = tree2)
@@ -167,8 +171,6 @@ read.stats_beast_internal <- function(beast, text, index = NULL, verbose = FALSE
     if (!is.null(index)) {
         text = text[[index]]
     }
-
-    is_translated <- any(grepl("TRANSLATE", beast, ignore.case = TRUE, perl = use_perl()))
 
     phylo <- read.tree(text = text)
     tree2 <- add_pseudo_nodelabel(phylo, is_translated)
