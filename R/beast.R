@@ -4,6 +4,8 @@
 ##' @rdname beast-parser
 ##' @title read.beast
 ##' @param file beast file
+##' @param threads number of threads for multithreading (default: 1)
+##' @param verbose set TRUE to log progress (default: FALSE)
 ##' @return treedata object
 ##' @importFrom ape read.nexus
 ##' @export
@@ -11,11 +13,11 @@
 ##' @examples
 ##' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
 ##' read.beast(file)
-read.beast <- function(file, ...) {
+read.beast <- function(file, threads = 1, verbose = FALSE) {
     text <- readLines(file)
 
     treetext <- read.treetext_beast(text)
-    stats <- read.stats_beast(text, treetext, ...)
+    stats <- read.stats_beast(text, treetext, threads = 1, verbose = FALSE)
     phylo <- read.nexus(file)
 
     if (length(treetext) == 1) {
@@ -44,6 +46,8 @@ read.mrbayes <- read.beast
 ##' @rdname beast-parser
 ##' @title read.beast.newick
 ##' @param file newick file
+##' @param threads number of threads for multithreading (default: 1)
+##' @param verbose set TRUE to log progress (default: FALSE)
 ##' @return treedata object
 ##' @importFrom ape read.tree
 ##' @export
@@ -54,7 +58,7 @@ read.mrbayes <- read.beast
 ##'           '(a[&rate=1]:2,(b[&rate=1.1]:1,c[&rate=0.9]:1)[&rate=1]:1);'
 ##'         )
 ##' )
-read.beast.newick <- function(file) {
+read.beast.newick <- function(file, threads = 1, verbose = FALSE) {
     text <- readLines(file)
     treetext <- text
     phylo <- read.tree(textConnection(treetext))
@@ -64,7 +68,13 @@ read.beast.newick <- function(file) {
     stats <- if (length(treetext) == 1){
         read.stats_beast_internal(treetext, is_translated)
     } else {
-        lapply(treetext, read.stats_beast_internal, is_translated=is_translated)
+        if (threads == 1) {
+            myapply <- lapply
+        } else {
+            myapply <- function(...) mclapply(..., mc.cores = threads)
+        }
+
+        myapply(treetext, read.stats_beast_internal, is_translated=is_translated, verbose = verbose)
     }
 
     if (length(treetext) == 1) {

@@ -7,16 +7,20 @@
 \alias{read.mega}
 \title{read.beast}
 \usage{
-read.beast(file, threads = getOption("mc.cores"))
+read.beast(file, threads = 1, verbose = FALSE)
 
-read.mrbayes(file, threads = getOption("mc.cores"))
+read.mrbayes(file, threads = 1, verbose = FALSE)
 
-read.beast.newick(file)
+read.beast.newick(file, threads = 1, verbose = FALSE)
 
-read.mega(file, threads = getOption("mc.cores"))
+read.mega(file, threads = 1, verbose = FALSE)
 }
 \arguments{
 \item{file}{newick file}
+
+\item{threads}{number of threads for multithreading (default: 1)}
+
+\item{verbose}{set TRUE to log progress (default: FALSE)}
 }
 \value{
 treedata object
