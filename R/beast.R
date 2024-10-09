@@ -164,10 +164,6 @@ read.stats_beast <- function(beast, trees, threads = 1, verbose = FALSE) {
 
 
 read.stats_beast_internal <- function(text, is_translated, index = NULL, verbose = FALSE, ntrees = NULL) {
-    ##tree <- gsub(" ", "", tree)
-    ## tree2 <- gsub("\\[[^\\[]*\\]", "", tree)
-    ## phylo <- read.tree(text = tree2)
-    ## tree2 <- add_pseudo_nodelabel(phylo, tree2)
     if (!is.null(index)) {
         text = text[[index]]
     }
@@ -176,13 +172,10 @@ read.stats_beast_internal <- function(text, is_translated, index = NULL, verbose
     tree2 <- add_pseudo_nodelabel(phylo, is_translated)
 
     ## node name corresponding to stats
-    nn <- strsplit(tree2, split=",") %>% unlist %>%
-        strsplit(., split="\\)") %>% unlist %>%
+    nn <- strsplit(tree2, split="[,\\)]", perl = use_perl()) %>% unlist %>%
         gsub("\\(*", "", ., perl = use_perl()) %>%
         gsub("[:;].*", "", ., perl = use_perl()) %>%
-        gsub(" ", "", ., perl = use_perl()) %>%
-        gsub("'", "", ., perl = use_perl()) %>%
-        gsub('"', "", ., perl = use_perl())
+        gsub("[ '\"]", "", ., perl = use_perl())
 
     phylo <- read.tree(text = tree2)
     root <- rootnode(phylo)
@@ -191,52 +184,22 @@ read.stats_beast_internal <- function(text, is_translated, index = NULL, verbose
     tree_label <- c(phylo$tip.label, phylo$node.label)
     ii <- match(nn, tree_label)
 
-
     if (is_translated == TRUE) {
         label2 <- c(phylo$tip.label, root:getNodeNum(phylo))
-        ## label2 <- c(treeinfo[treeinfo$isTip, "label"], root:(root+nnode-1))
     } else {
-        ## node <- as.character(treeinfo$node[match(nn, treeinfo$label)])
         label2 <- as.character(1:getNodeNum(phylo))
     }
     node <- label2[match(nn, tree_label)]
 
-    ## stats <- unlist(strsplit(tree, "\\["))[-1]
-    ## stats <- sub(":.+$", "", stats
     ## BEAST1 edge stat fix
    	text <- gsub("\\]:\\[&(.+?\\])", ",\\1:", text, perl = use_perl())
-    # t1:[&mutation="test1"]0.04 -> t1[&mutation="test1"]:0.04
     text <- gsub(":(\\[.+?\\])", "\\1:", text, perl = use_perl())
 
     if (grepl("\\:[0-9\\.eEL+\\-]*\\[", text, perl = use_perl()) || grepl("\\]\\[", text, perl = use_perl())){
-        # t1:0.04[&mutation="test1"] -> t1[&mutation="test1"]:0.04
-        # or t1[&prob=100]:0.04[&mutation="test"] -> t1[&prob=100][&mutation="test"]:0.04 (MrBayes output)
-        # pattern <- "(\\w+)?(:?\\d*\\.?\\d*[Ee]?[\\+\\-]?\\d*)?(\\[&.*?\\])"
         pattern <- "(\\w+)?(:[\\+\\-]?\\d*\\.?\\d*[Ee]?[\\+\\-]?\\L*\\d*)?(\\[&.*?\\])"
         text <- gsub(pattern, "\\1\\3\\2", text)  # not PCRE compatible
     }
-    #if (grepl("\\]:[0-9\\.eE+\\-]*\\[", tree) || grepl("\\]\\[", tree)) {
-    #    ## MrBayes output
-    #    stats <- strsplit(tree, "\\]:[0-9\\.eE+\\-]*\\[") %>% unlist
-    #    lstats <- lapply(stats, function(x) {
-    #        unlist(strsplit(x, split="\\][,\\)]"))
-    #    })
-    #
-    #    for (i in seq_along(stats)) {
-    #        n <- length(lstats[[i]])
-    #        if (i == length(stats)) {
-    #            stats[i] <- lstats[[i]][n]
-    #        } else {
-    #            stats[i] <- paste0(lstats[[i]][n],
-    #                               sub("&", ",", lstats[[i+1]][1])
-    #            )
-    #        }
-    #    }
-    #    stats <- gsub("\\]\\[&", ",", stats)
-    #} else {
-    #    ## BEAST output
-    #    stats <- strsplit(tree, ":") %>% unlist
-    #}
+
     stats <- strsplit(text, ":") %>% unlist
     names(stats) <- node
 
@@ -253,9 +216,6 @@ read.stats_beast_internal <- function(text, is_translated, index = NULL, verbose
         x <- stats[[i]]
         y <- unlist(strsplit(x, ","))
         # the stats information does not has always {}
-        #sidx <- grep("=\\{", y)
-        #eidx <- grep("\\}$", y)
-        # [&mutation="test1,test2",rate=80,90]
         sidx1 <- grep("=", y, fixed = TRUE)
         eidx1 <- sidx1 - 1
         eidx1 <- c(eidx1[-1], length(y))
@@ -329,23 +289,8 @@ read.stats_beast_internal <- function(text, is_translated, index = NULL, verbose
     stats3 <- do.call(rbind, stats2)
     stats3 <- as_tibble(stats3)
 
-    ## no need to extract sd from prob+-sd
-    ## as the sd is stored in prob_stddev
-    ##
-    ## "prob_stddev"   "prob(percent)" "prob+-sd"
-    ##
-    ##
-    ##
-    ## idx <- grep("\\+-", colnames(stats3))
-    ## if (length(idx)) {
-    ##     for (i in idx) {
-    ##         stats3[,i] <- as.numeric(gsub("\\d+\\+-", "", stats3[,i]))
-    ##     }
-    ## }
-
     cn <- gsub("(\\d+)%", "0.\\1", colnames(stats3), perl = use_perl())
     cn <- gsub("\\(([^\\)]+)\\)", "_\\1", cn, perl = use_perl())
-    ## cn <- gsub("\\+-", "_", cn)
 
     colnames(stats3) <- cn
     stats3$node <- names(stats)
