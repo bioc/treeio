@@ -10,6 +10,10 @@
 
 -->
 
+# treeio 1.29.2
+
++ speedup `read.beast()` with multithreading supports (2024-10-27, Sun, #128)
+
 # treeio 1.29.1
 
 + use `yulab.utils::yulab_msg()` for startup message (2024-07-26, Fri)
