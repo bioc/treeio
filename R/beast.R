@@ -4,6 +4,8 @@
 ##' @rdname beast-parser
 ##' @title read.beast
 ##' @param file beast file
+##' @param threads number of threads for multithreading (default: 1)
+##' @param verbose set TRUE to log progress (default: FALSE)
 ##' @return treedata object
 ##' @importFrom ape read.nexus
 ##' @export
@@ -11,11 +13,11 @@
 ##' @examples
 ##' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
 ##' read.beast(file)
-read.beast <- function(file) {
+read.beast <- function(file, threads = 1, verbose = FALSE) {
     text <- readLines(file)
 
     treetext <- read.treetext_beast(text)
-    stats <- read.stats_beast(text, treetext)
+    stats <- read.stats_beast(text, treetext, threads = 1, verbose = FALSE)
     phylo <- read.nexus(file)
 
     if (length(treetext) == 1) {
@@ -44,6 +46,8 @@ read.mrbayes <- read.beast
 ##' @rdname beast-parser
 ##' @title read.beast.newick
 ##' @param file newick file
+##' @param threads number of threads for multithreading (default: 1)
+##' @param verbose set TRUE to log progress (default: FALSE)
 ##' @return treedata object
 ##' @importFrom ape read.tree
 ##' @export
@@ -54,15 +58,23 @@ read.mrbayes <- read.beast
 ##'           '(a[&rate=1]:2,(b[&rate=1.1]:1,c[&rate=0.9]:1)[&rate=1]:1);'
 ##'         )
 ##' )
-read.beast.newick <- function(file) {
+read.beast.newick <- function(file, threads = 1, verbose = FALSE) {
     text <- readLines(file)
     treetext <- text
     phylo <- read.tree(textConnection(treetext))
 
+    is_translated <- any(grepl("TRANSLATE", text, ignore.case = TRUE, perl = use_perl()))
+
     stats <- if (length(treetext) == 1){
-        read.stats_beast_internal(text, treetext)
+        read.stats_beast_internal(treetext, is_translated)
     } else {
-        lapply(treetext, read.stats_beast_internal, beast=text)
+        if (threads == 1) {
+            myapply <- lapply
+        } else {
+            myapply <- function(...) mclapply(..., mc.cores = threads)
+        }
+
+        myapply(treetext, read.stats_beast_internal, is_translated=is_translated, verbose = verbose)
     }
 
     if (length(treetext) == 1) {
@@ -139,34 +151,41 @@ read.trans_beast <- function(beast) {
 }
 
 
-read.stats_beast <- function(beast, trees) {
+##' @importFrom parallel mclapply
+read.stats_beast <- function(beast, trees, threads = 1, verbose = FALSE) {
+    is_translated <- any(grepl("TRANSLATE", beast, ignore.case = TRUE, perl = use_perl()))
+
     if (length(trees) == 1) {
-        return(read.stats_beast_internal(beast, trees))
+        return(read.stats_beast_internal(trees, is_translated))
     }
-    lapply(trees, read.stats_beast_internal, beast=beast)
+    if (threads == 1) {
+        myapply <- lapply
+    } else {
+        myapply <- function(...) mclapply(..., mc.cores = threads)
+    }
+
+    res <- myapply(seq_along(trees), read.stats_beast_internal, text=trees, is_translated = is_translated, verbose=verbose, ntrees=length(trees))
+    if (verbose) {
+        cat("\n")
+    }
+    return(res)
 }
 
 
 
-read.stats_beast_internal <- function(beast, text) {
-    ##tree <- gsub(" ", "", tree)
-    ## tree2 <- gsub("\\[[^\\[]*\\]", "", tree)
-    ## phylo <- read.tree(text = tree2)
-    ## tree2 <- add_pseudo_nodelabel(phylo, tree2)
-
-    is_translated <- any(grepl("TRANSLATE", beast, ignore.case = TRUE, perl = use_perl()))
+read.stats_beast_internal <- function(text, is_translated, index = NULL, verbose = FALSE, ntrees = NULL) {
+    if (!is.null(index)) {
+        text = text[[index]]
+    }
 
     phylo <- read.tree(text = text)
     tree2 <- add_pseudo_nodelabel(phylo, is_translated)
 
     ## node name corresponding to stats
-    nn <- strsplit(tree2, split=",") %>% unlist %>%
-        strsplit(., split="\\)") %>% unlist %>%
+    nn <- strsplit(tree2, split="[,\\)]", perl = use_perl()) %>% unlist %>%
         gsub("\\(*", "", ., perl = use_perl()) %>%
         gsub("[:;].*", "", ., perl = use_perl()) %>%
-        gsub(" ", "", ., perl = use_perl()) %>%
-        gsub("'", "", ., perl = use_perl()) %>%
-        gsub('"', "", ., perl = use_perl())
+        gsub("[ '\"]", "", ., perl = use_perl())
 
     phylo <- read.tree(text = tree2)
     root <- rootnode(phylo)
@@ -175,52 +194,22 @@ read.stats_beast_internal <- function(beast, text) {
     tree_label <- c(phylo$tip.label, phylo$node.label)
     ii <- match(nn, tree_label)
 
-
     if (is_translated == TRUE) {
         label2 <- c(phylo$tip.label, root:getNodeNum(phylo))
-        ## label2 <- c(treeinfo[treeinfo$isTip, "label"], root:(root+nnode-1))
     } else {
-        ## node <- as.character(treeinfo$node[match(nn, treeinfo$label)])
         label2 <- as.character(1:getNodeNum(phylo))
     }
     node <- label2[match(nn, tree_label)]
 
-    ## stats <- unlist(strsplit(tree, "\\["))[-1]
-    ## stats <- sub(":.+$", "", stats
     ## BEAST1 edge stat fix
    	text <- gsub("\\]:\\[&(.+?\\])", ",\\1:", text, perl = use_perl())
-    # t1:[&mutation="test1"]0.04 -> t1[&mutation="test1"]:0.04
     text <- gsub(":(\\[.+?\\])", "\\1:", text, perl = use_perl())
 
     if (grepl("\\:[0-9\\.eEL+\\-]*\\[", text, perl = use_perl()) || grepl("\\]\\[", text, perl = use_perl())){
-        # t1:0.04[&mutation="test1"] -> t1[&mutation="test1"]:0.04
-        # or t1[&prob=100]:0.04[&mutation="test"] -> t1[&prob=100][&mutation="test"]:0.04 (MrBayes output)
-        # pattern <- "(\\w+)?(:?\\d*\\.?\\d*[Ee]?[\\+\\-]?\\d*)?(\\[&.*?\\])"
         pattern <- "(\\w+)?(:[\\+\\-]?\\d*\\.?\\d*[Ee]?[\\+\\-]?\\L*\\d*)?(\\[&.*?\\])"
         text <- gsub(pattern, "\\1\\3\\2", text)  # not PCRE compatible
     }
-    #if (grepl("\\]:[0-9\\.eE+\\-]*\\[", tree) || grepl("\\]\\[", tree)) {
-    #    ## MrBayes output
-    #    stats <- strsplit(tree, "\\]:[0-9\\.eE+\\-]*\\[") %>% unlist
-    #    lstats <- lapply(stats, function(x) {
-    #        unlist(strsplit(x, split="\\][,\\)]"))
-    #    })
-    #
-    #    for (i in seq_along(stats)) {
-    #        n <- length(lstats[[i]])
-    #        if (i == length(stats)) {
-    #            stats[i] <- lstats[[i]][n]
-    #        } else {
-    #            stats[i] <- paste0(lstats[[i]][n],
-    #                               sub("&", ",", lstats[[i+1]][1])
-    #            )
-    #        }
-    #    }
-    #    stats <- gsub("\\]\\[&", ",", stats)
-    #} else {
-    #    ## BEAST output
-    #    stats <- strsplit(tree, ":") %>% unlist
-    #}
+
     stats <- strsplit(text, ":") %>% unlist
     names(stats) <- node
 
@@ -237,9 +226,6 @@ read.stats_beast_internal <- function(beast, text) {
         x <- stats[[i]]
         y <- unlist(strsplit(x, ","))
         # the stats information does not has always {}
-        #sidx <- grep("=\\{", y)
-        #eidx <- grep("\\}$", y)
-        # [&mutation="test1,test2",rate=80,90]
         sidx1 <- grep("=", y, fixed = TRUE)
         eidx1 <- sidx1 - 1
         eidx1 <- c(eidx1[-1], length(y))
@@ -313,27 +299,12 @@ read.stats_beast_internal <- function(beast, text) {
     stats3 <- do.call(rbind, stats2)
     stats3 <- as_tibble(stats3)
 
-    ## no need to extract sd from prob+-sd
-    ## as the sd is stored in prob_stddev
-    ##
-    ## "prob_stddev"   "prob(percent)" "prob+-sd"
-    ##
-    ##
-    ##
-    ## idx <- grep("\\+-", colnames(stats3))
-    ## if (length(idx)) {
-    ##     for (i in idx) {
-    ##         stats3[,i] <- as.numeric(gsub("\\d+\\+-", "", stats3[,i]))
-    ##     }
-    ## }
-
     cn <- gsub("(\\d+)%", "0.\\1", colnames(stats3), perl = use_perl())
     cn <- gsub("\\(([^\\)]+)\\)", "_\\1", cn, perl = use_perl())
-    ## cn <- gsub("\\+-", "_", cn)
 
     colnames(stats3) <- cn
     stats3$node <- names(stats)
-    
+
     if (length(cn) > 0) {
         i <- vapply(stats3,
                     function(x) max(vapply(x, length, numeric(1))),
@@ -345,6 +316,11 @@ read.stats_beast_internal <- function(beast, text) {
     }
 
     stats3$node <- as.integer(stats3$node)
+
+    if (verbose && (index %% 100 == 0)) {
+        cat("Completed (", index," / ",  ntrees, ") trees\r", sep = "")
+    }
+
     return(stats3)
 }
 
