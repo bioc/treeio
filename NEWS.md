@@ -8,7 +8,7 @@
 
 -->
 
-# treeio 1.37.0.001
+# treeio 1.36.1
 
 + restore `read.beast()` multithreading and complete the `write.beast()` named node annotation fix (2026-04-30, Thu, #130)
 
